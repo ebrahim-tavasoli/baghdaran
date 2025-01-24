@@ -1,0 +1,15 @@
+{% extends "order/base_order.html" %}
+{% load persian %}
+
+{% block content %}
+    {% autoescape off %}
+    <p>جناب آقای {{ order.water_source.operator | to_persian_numbers | bold }}</p>
+    <p>با سلام و احترام</p>
+    <p>بدین وسیله آقا/خانم {{ order.farmland.farmer.name | to_persian_numbers | bold }} با شماره دفترچه {{ order.farmland.farmer.notebook_number | to_persian_numbers | bold }} باغدار منطقه {{ order.farmland.zone.name | to_persian_numbers | bold }} دارای حواله آب معادل {{ order.tanker_count | to_persian_numbers | bold }} تانکر {{ order.driver.capacity | to_persian_numbers | bold }} لیتری از چاه {{ order.water_source.name | to_persian_numbers | bold }} به حضورتان معرفی می گردد.</p>
+    <hr style="border: 0.5px solid lightgray;">
+    {{ description }}
+    <hr style="border: 0.5px solid lightgray;">
+    <p>بدین وسیله کامیون/وانت با شماره {{ order.driver.car_number | to_persian_numbers | bold }} به رانندگی آقای {{ order.driver.name | to_persian_numbers | bold }} از محل چاه {{ order.water_source.name | to_persian_numbers | bold }} جهت آبیاری انجیرستان آقا/خانم {{ order.farmland.farmer.name | to_persian_numbers | bold }} در منطقه {{ order.farmland.zone.name | to_persian_numbers | bold }} مجوز بارگیری و حمل {{ order.tanker_count | to_persian_numbers | bold }} تانکر را دارد.</p>
+    <p>مدت اعتبار این حواله ار تاریخ {{ order.created_date_at | to_persian_date | bold }} لغایت {{ order.valid_date | to_persian_date | bold }} به مدت {{ order.valid_days | to_persian_numbers | bold }} روز می&zwnj;باشد و پس از تاریخ فوق اعتبار این حواله باطل می&zwnj;گردد.</p>
+    {% endautoescape %}
+{% endblock %}

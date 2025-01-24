@@ -1,0 +1,67 @@
+{% load static %}
+{% load persian %}
+
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شرکت تعاونی کشاورزی</title>
+    <style>
+        @font-face {
+            font-family: "Nazanin";
+            src: url("{% static 'order/font/nazanin-400.woff2' %}") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: "Nazanin";
+            src: url("{% static 'order/font/nazanin-700.woff2' %}") format("woff2");
+            font-weight: 700;
+            font-style: normal;
+        }
+        body {
+            font-family: "Nazanin";
+            line-height: 1.6;
+            direction: rtl;
+            text-align: right;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin: 0 auto;
+            width: 80%;
+        }
+        .footer {
+            text-align: left;
+            margin-top: 20px;
+            padding-left: 10%;
+        }
+    </style>
+</head>
+<body>
+    <h3 style="text-align: center;">باسمه تعالی</h2>
+    <div style="display: flex; justify-content: space-between; width: 100%;">
+        <div style="width: 50%;">
+            <p style="text-align: center">شرکت تعاونی کشاورزی</p>
+            <p style="text-align: center">باغداران استهبان</p>
+            <p style="text-align: center">ثبت ۱۵۳</p>
+        </div>
+        <div style="width: 50%; text-align: left;">
+            <p style="text-align: center" dir="ltr">تاریخ: {{ created_at | to_persian_date }}</p>
+            <p style="text-align: center">شماره: </p>
+        </div>
+    </div>
+    <hr>
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <hr>
+    <div class="footer">
+        <p>شرکت تعاونی باغداران استهبان</p>
+    </div>
+</body>
+</html>

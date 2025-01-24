@@ -1,0 +1,63 @@
+services:
+  init:
+    build: .
+    image: baghdaran:latest
+    command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate"
+    volumes:
+      - ./media:/app/media
+      - ./static:/app/static
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+  
+  web:
+    image: baghdaran:latest
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./media:/app/media
+      - ./static:/app/static
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    expose:
+      - 8000
+
+  db:
+    image: postgres:16
+    env_file:
+      - .env
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    expose:
+      - 5432
+
+  caddy:
+    image: caddy:2.9.1
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./static:/www/html/static
+      - ./media:/www/html/media
+    depends_on:
+      web:
+        condition: service_healthy
