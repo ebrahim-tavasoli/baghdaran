@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 
 from accounting.models import Price
-from baghdaran.order.models import OrderDescription
+from order.models import OrderDescription
 
 
 class Command(BaseCommand):
@@ -11,8 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write('Starting data initialization...')
 
-        default_user_groups = [
-            {
+        default_user_groups = {
                 'manager': [
                     'add_farmer',
                     'change_farmer',
@@ -59,9 +58,7 @@ class Command(BaseCommand):
                     'change_payment',
                     'delete_payment',
                     'view_payment',
-                ]
-            },
-            {
+                ],
                 'staff': [
                     'add_farmer',
                     'change_farmer',
@@ -86,7 +83,6 @@ class Command(BaseCommand):
                     'view_payment',
                 ]
             }
-        ]
 
         default_prices = [
             {'name': 'water_price_liter', 'value': 1000, 'fa_name': 'قیمت هر لیتر آب'},
@@ -101,7 +97,7 @@ class Command(BaseCommand):
             {'name': 'water_order_pipe', 'fa_name': 'توضیحات حواله آب ساعتی'},
         ]
 
-        for group_name, permissions in default_user_groups:
+        for group_name, permissions in default_user_groups.items():
             group, created = Group.objects.get_or_create(name=group_name)
             for permission in permissions:
                 perm_obj = Permission.objects.get(codename=permission)
