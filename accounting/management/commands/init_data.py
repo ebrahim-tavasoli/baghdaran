@@ -1,8 +1,9 @@
+import jdatetime
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 
 from accounting.models import Price
-from order.models import OrderDescription
+from order.models import OrderDescription, OrderNumber
 
 
 class Command(BaseCommand):
@@ -117,5 +118,10 @@ class Command(BaseCommand):
             ))
         OrderDescription.objects.bulk_create(descriptions, ignore_conflicts=True)
 
+        if OrderNumber.objects.count() == 0:
+            OrderNumber.objects.create(
+                number=1,
+                reset_date=jdatetime.date(1403, 7, 1),
+            )
 
         self.stdout.write(self.style.SUCCESS('Price initialization completed successfully'))

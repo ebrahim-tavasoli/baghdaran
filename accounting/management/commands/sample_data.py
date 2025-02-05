@@ -75,8 +75,11 @@ class Command(BaseCommand):
         for i in range(5):
             water_source = WaterSource.objects.create(
                 name=f'منبع آب {i+1}',
+                operator=f'operator {i+1}',
             )
             water_sources.append(water_source)
+
+
 
         # # Create sample water orders
         # orders = []

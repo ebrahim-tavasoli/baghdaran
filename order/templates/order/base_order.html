@@ -42,7 +42,7 @@
     </style>
 </head>
 <body>
-    <h3 style="text-align: center;">باسمه تعالی</h2>
+    <h3 style="text-align: center;">باسمه تعالی</h3>
     <div style="display: flex; justify-content: space-between; width: 100%;">
         <div style="width: 50%;">
             <p style="text-align: center">شرکت تعاونی کشاورزی</p>
@@ -50,8 +50,8 @@
             <p style="text-align: center">ثبت ۱۵۳</p>
         </div>
         <div style="width: 50%; text-align: left;">
-            <p style="text-align: center" dir="ltr">تاریخ: {{ created_at | to_persian_date }}</p>
-            <p style="text-align: center">شماره: </p>
+            <p style="text-align: center" dir="ltr">تاریخ: {{ created_at | to_persian_date | bold }}</p>
+            <p style="text-align: center">شماره: {{ number | to_persian_numbers | bold }}</p>
         </div>
     </div>
     <hr>

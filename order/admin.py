@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.db.models import Sum, F
 from django.db.models.functions import Coalesce
 from django.db.models.lookups import GreaterThan
-from django.urls import reverse
 from django.utils.html import format_html
 
 
@@ -41,7 +40,7 @@ class WaterOrderAdmin(admin.ModelAdmin):
     search_fields = ('farmland__name', 'created_date_at', 'farmland__farmer__name', 'farmland__farmer__code_melli')
     list_filter = ('created_date_at', PaymentStatusFilter)
     autocomplete_fields = ('farmland', 'driver', 'water_source')
-    readonly_fields = ('created_date_at', 'created_time_at', 'updated_at', 'water_price_base', 'pipe_price_base', 'pump_price_base', 'total_price', 'remaining_payment')
+    readonly_fields = ('created_date_at', 'created_time_at', 'updated_at', 'water_price_base', 'pipe_price_base', 'pump_price_base', 'total_price', 'remaining_payment', 'number')
 
     inlines = [
         type('PaymentInline', (admin.TabularInline,), {

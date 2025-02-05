@@ -5,9 +5,8 @@
     {% autoescape off %}
     <p>جناب آقای {{ order.water_source.operator | to_persian_numbers | bold }}</p>
     <p>با سلام و احترام</p>
-    <p>بدين وسيله آقا/خانم {{ order.farmland.farmer.name | to_persian_numbers }} باغدار منطقه {{ order.farmland.zone.name | to_persian_numbers }} داراى حواله آب معادل {{ order.amount | to_persian_numbers }} ساعت از چاه {{ order.water_source.name | to_persian_numbers }} با دفترچه/معرفى نامه به شماره {{ order.farmland.farmer.notebook_number | to_persian_numbers }} به حضورتان معرفى&nbsp;مي&zwnj;گردد.</p>
-    <p>مبلغ هر ساعت آب {{ order.water_price_base | to_persian_numbers }} ريال مى&zwnj;باشد.</p>
-    <p>مبلغ هر ساعت پمپاز {{ order.pump_price_base | to_persian_numbers }} ريال و بابت لوله هر ساعت {{ order.pipe_price_base | to_persian_numbers }} ريال مى&zwnj;باشد.</p>
+    <p>بدين وسيله آقا/خانم {{ order.farmland.farmer.name | to_persian_numbers | bold }} با کد ملی {{ order.farmland.farmer.code_melli | to_persian_numbers | bold }} باغدار منطقه {{ order.farmland.zone.name | to_persian_numbers | bold }} داراى حواله آب معادل {{ order.amount | to_persian_numbers | bold }} ساعت از چاه {{ order.water_source.name | to_persian_numbers | bold }} با دفترچه/معرفى نامه به شماره {{ order.farmland.farmer.notebook_number | to_persian_numbers | bold }} به حضورتان معرفى مي&zwnj;گردد.</p>    <p>مبلغ هر ساعت آب {{ order.water_price_base | to_persian_numbers | bold }} ريال مى&zwnj;باشد.</p>
+    <p>مبلغ هر ساعت پمپاز {{ order.pump_price_base | to_persian_numbers | bold }} ريال و بابت لوله هر ساعت {{ order.pipe_price_base | to_persian_numbers | bold }} ريال مى&zwnj;باشد.</p>
     <hr style="border: 0.5px solid lightgray;">
     {{ description }}
     {% endautoescape %}
