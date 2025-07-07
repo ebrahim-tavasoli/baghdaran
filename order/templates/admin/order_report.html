@@ -1,0 +1,286 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load persian %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ form.media }}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}">
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+    <style>
+        .help {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .jalali-datepicker {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-width: 200px;
+        }
+        .form-row {
+            margin-bottom: 15px;
+        }
+        .farmland-autocomplete {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 200px;
+            background: #fff;
+            font-size: 13px;
+        }
+        .farmland-suggestions {
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            min-width: 200px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .farmland-suggestion {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            color: #333;
+            background: #fff;
+        }
+        .farmland-suggestion:hover {
+            background-color: #f8f9fa;
+        }
+        .farmland-suggestion.selected {
+            background-color: #417690;
+            color: white;
+        }
+        .farmland-suggestion:last-child {
+            border-bottom: none;
+        }
+        .farmland-field-container {
+            position: relative;
+            display: inline-block;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize JalaliDatePicker after DOM is loaded
+            if (typeof jalaliDatepicker !== 'undefined') {
+                jalaliDatepicker.startWatch({
+                    date: true,
+                    time: false,
+                    persianDigits: false,
+                    showTodayBtn: true,
+                    showEmptyBtn: true,
+                    autoHide: true,
+                    hideAfterChange: true,
+                    separatorChars: {
+                        date: '-'
+                    }
+                });
+            } else {
+                console.error('JalaliDatePicker library not loaded');
+            }
+
+            // AJAX Farmland Autocomplete
+            const farmlandInput = document.querySelector('.farmland-autocomplete');
+            const suggestionsDiv = document.getElementById('farmland-suggestions');
+            let debounceTimeout = null;
+            let selectedIndex = -1;
+            let suggestions = [];
+
+            if (farmlandInput && suggestionsDiv) {
+                // Position suggestions dropdown correctly
+                function positionDropdown() {
+                    const rect = farmlandInput.getBoundingClientRect();
+                    const container = farmlandInput.closest('.farmland-field-container');
+                    suggestionsDiv.style.width = farmlandInput.offsetWidth + 'px';
+                    suggestionsDiv.style.top = (farmlandInput.offsetTop + farmlandInput.offsetHeight) + 'px';
+                    suggestionsDiv.style.left = farmlandInput.offsetLeft + 'px';
+                }
+
+                farmlandInput.addEventListener('input', function() {
+                    const term = this.value;
+                    if (debounceTimeout) clearTimeout(debounceTimeout);
+                    if (term.length < 2) {
+                        suggestionsDiv.style.display = 'none';
+                        return;
+                    }
+                    debounceTimeout = setTimeout(function() {
+                        fetch('/order/ajax/farmland-autocomplete/?term=' + encodeURIComponent(term))
+                            .then(response => response.json())
+                            .then(data => {
+                                suggestions = data.results;
+                                suggestionsDiv.innerHTML = '';
+                                if (suggestions.length > 0) {
+                                    suggestions.forEach((item, idx) => {
+                                        const div = document.createElement('div');
+                                        div.className = 'farmland-suggestion';
+                                        div.textContent = item.text;
+                                        div.dataset.id = item.id;
+                                        div.addEventListener('mousedown', function(e) {
+                                            farmlandInput.value = item.text;
+                                            document.getElementById('id_farmland_id').value = item.id;
+                                            suggestionsDiv.style.display = 'none';
+                                        });
+                                        suggestionsDiv.appendChild(div);
+                                    });
+                                    positionDropdown();
+                                    suggestionsDiv.style.display = 'block';
+                                } else {
+                                    suggestionsDiv.style.display = 'none';
+                                }
+                                selectedIndex = -1;
+                            })
+                            .catch(error => {
+                                console.error('Error fetching farmland suggestions:', error);
+                                suggestionsDiv.style.display = 'none';
+                            });
+                    }, 200);
+                });
+
+                farmlandInput.addEventListener('keydown', function(e) {
+                    const items = suggestionsDiv.querySelectorAll('.farmland-suggestion');
+                    if (suggestionsDiv.style.display === 'block' && items.length > 0) {
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            selectedIndex = (selectedIndex + 1) % items.length;
+                            updateSelection(items);
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                            updateSelection(items);
+                        } else if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (selectedIndex >= 0 && selectedIndex < items.length) {
+                                items[selectedIndex].dispatchEvent(new Event('mousedown'));
+                            }
+                        }
+                    }
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!farmlandInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                        suggestionsDiv.style.display = 'none';
+                    }
+                });
+
+                function updateSelection(items) {
+                    items.forEach((item, idx) => {
+                        if (idx === selectedIndex) {
+                            item.classList.add('selected');
+                        } else {
+                            item.classList.remove('selected');
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+<div class="module">
+    <h1>گزارش حواله</h1>
+    
+    <form method="get" class="module">
+        <fieldset class="module aligned">
+            <div class="form-row">
+                <div>
+                    <label for="id_order_type">نوع حواله:</label>
+                    {{ form.order_type }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="farmland-field-container">
+                    <label for="id_farmland">مزرعه:</label>
+                    {{ form.farmland }}
+                    {% if form.farmland.help_text %}
+                        <p class="help">{{ form.farmland.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label for="id_start_date">{{ form.start_date.label }}:</label>
+                    {{ form.start_date }}
+                    {% if form.start_date.help_text %}
+                        <p class="help">{{ form.start_date.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label for="id_end_date">{{ form.end_date.label }}:</label>
+                    {{ form.end_date }}
+                    {% if form.end_date.help_text %}
+                        <p class="help">{{ form.end_date.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-row">
+                <input type="submit" value="فیلتر" class="default" />
+            </div>
+        </fieldset>
+    </form>
+
+    {% if orders %}
+        <div class="results">
+            <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <p class="paginator" style="margin: 0;">
+                    {{ orders|length | to_persian_numbers }} نتیجه یافت شد
+                </p>
+                <a href="{% url 'order_report_pdf' %}?{{ request.GET.urlencode }}" 
+                   class="button" 
+                   style="background: #417690; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 13px;">
+                    📄 دانلود PDF
+                </a>
+            </div>
+            <table id="result_list" class="table table-striped">
+                <thead>
+                    <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                        <th scope="col" style="padding: 12px; text-align: center; font-weight: bold; border-right: 1px solid #dee2e6;">شماره</th>
+                        <th scope="col" style="padding: 12px; text-align: center; font-weight: bold; border-right: 1px solid #dee2e6;">نوع حواله</th>
+                        <th scope="col" style="padding: 12px; text-align: center; font-weight: bold; border-right: 1px solid #dee2e6;">مزرعه/کشاورز</th>
+                        <th scope="col" style="padding: 12px; text-align: center; font-weight: bold; border-right: 1px solid #dee2e6;">تاریخ ایجاد</th>
+                        <th scope="col" style="padding: 12px; text-align: center; font-weight: bold; border-right: 1px solid #dee2e6;">مبلغ کل</th>
+                        <th scope="col" style="padding: 12px; text-align: center; font-weight: bold;">مانده حساب</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                    <tr class="{% cycle 'row1' 'row2' %}" style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 10px; text-align: center; border-right: 1px solid #dee2e6;">{{ order.number | to_persian_numbers }}</td>
+                        <td style="padding: 10px; text-align: center; border-right: 1px solid #dee2e6;">
+                            {% if order.farmland %}
+                                <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 3px; font-size: 12px;">حواله آب</span>
+                            {% elif order.farmer %}
+                                <span style="background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 3px; font-size: 12px;">حواله نهاده</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 10px; text-align: center; border-right: 1px solid #dee2e6;">
+                            {% if order.farmland %}
+                                {{ order.farmland }}
+                            {% elif order.farmer %}
+                                {{ order.farmer }}
+                            {% endif %}
+                        </td>
+                        <td style="padding: 10px; text-align: center; border-right: 1px solid #dee2e6;">{{ order.created_date_at | to_persian_date }}</td>
+                        <td style="padding: 10px; text-align: center; border-right: 1px solid #dee2e6; font-weight: bold; color: #28a745;">{{ order.total_price | to_persian_numbers }} ریال</td>
+                        <td style="padding: 10px; text-align: center; {% if order.remaining_payment > 0 %}color: #dc3545; font-weight: bold;{% else %}color: #28a745;{% endif %}">{{ order.remaining_payment | to_persian_numbers }} ریال</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elif form.is_valid %}
+        <p>هیچ نتیجه‌ای یافت نشد.</p>
+    {% endif %}
+</div>
+{% endblock %}

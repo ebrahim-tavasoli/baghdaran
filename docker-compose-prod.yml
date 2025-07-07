@@ -1,12 +1,10 @@
 services:
   init:
-    build: .
-    image: baghdaran:latest
+    image: ebrahimtavasoli/baghdaran:latest
     command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate"
     volumes:
       - ./media:/app/media
       - ./static:/app/static
-      - ./:/app
     depends_on:
       db:
         condition: service_healthy
@@ -14,12 +12,11 @@ services:
       - .env
 
   web:
-    image: baghdaran:latest
+    image: ebrahimtavasoli/baghdaran:latest
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./media:/app/media
       - ./static:/app/static
-      - ./:/app
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
       interval: 30s

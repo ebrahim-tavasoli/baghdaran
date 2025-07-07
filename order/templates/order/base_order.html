@@ -50,8 +50,8 @@
             <p style="text-align: center">ثبت ۱۵۳</p>
         </div>
         <div style="width: 50%; text-align: left;">
-            <p style="text-align: center" dir="ltr">تاریخ: {{ created_at | to_persian_date | bold }}</p>
-            <p style="text-align: center">شماره: {{ number | to_persian_numbers | bold }}</p>
+            <p style="text-align: center" dir="ltr"><span>{{ created_at | to_persian_date | bold | safe }}</span> <span>تاریخ:</span></p>
+            <p style="text-align: center" dir="ltr"><span>{{ number | to_persian_numbers | bold | safe }}</span> <span>شماره:</span></p>
         </div>
     </div>
     <hr>

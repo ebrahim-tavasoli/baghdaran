@@ -1,0 +1,278 @@
+{% load static %}
+{% load persian %}
+
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش حواله‌ها</title>
+    <style>
+        @font-face {
+            font-family: "Nazanin";
+            src: url("{% static 'order/font/nazanin-400.woff2' %}") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: "Nazanin";
+            src: url("{% static 'order/font/nazanin-700.woff2' %}") format("woff2");
+            font-weight: 700;
+            font-style: normal;
+        }
+        
+        body {
+            font-family: "Nazanin", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .header h2 {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 16px;
+            font-weight: normal;
+        }
+        
+        .filters {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .filters h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .filter-item {
+            margin: 5px 0;
+            color: #555;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            background: white;
+            border: 1px solid #dee2e6;
+        }
+        
+        thead {
+            background-color: #f8f9fa;
+        }
+        
+        th, td {
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+        
+        th {
+            font-weight: bold;
+            color: #333;
+            background-color: #e9ecef;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tbody tr:nth-child(odd) {
+            background-color: white;
+        }
+        
+        .order-type-water {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .order-type-goods {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .price {
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .remaining-positive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .remaining-zero {
+            color: #28a745;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .summary {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .summary h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .summary-item {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .summary-label {
+            font-weight: bold;
+        }
+        
+        .summary-value {
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-center {
+                content: "صفحه " counter(page) " از " counter(pages);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>تعاونی باغ داران استهبان</h1>
+        <h2>گزارش حواله‌ها</h2>
+    </div>
+    
+    <div class="filters">
+        <h3>فیلترهای اعمال شده:</h3>
+        {% if filter_info.order_type %}
+            <div class="filter-item"><strong>نوع حواله:</strong> {{ filter_info.order_type_display }}</div>
+        {% endif %}
+        {% if filter_info.farmland %}
+            <div class="filter-item"><strong>مزرعه:</strong> {{ filter_info.farmland }}</div>
+        {% endif %}
+        {% if filter_info.start_date %}
+            <div class="filter-item"><strong>از تاریخ:</strong> {{ filter_info.start_date }}</div>
+        {% endif %}
+        {% if filter_info.end_date %}
+            <div class="filter-item"><strong>تا تاریخ:</strong> {{ filter_info.end_date }}</div>
+        {% endif %}
+        {% if not filter_info.order_type and not filter_info.farmland and not filter_info.start_date and not filter_info.end_date %}
+            <div class="filter-item">همه حواله‌ها</div>
+        {% endif %}
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>شماره</th>
+                    <th>نوع حواله</th>
+                    <th>مزرعه/کشاورز</th>
+                    <th>تاریخ ایجاد</th>
+                    <th>مبلغ کل (ریال)</th>
+                    <th>مانده حساب (ریال)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.number | to_persian_numbers }}</td>
+                        <td>
+                            {% if order.farmland %}
+                                <span class="order-type-water">حواله آب</span>
+                            {% elif order.farmer %}
+                                <span class="order-type-goods">حواله نهاده</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.farmland %}
+                                {{ order.farmland }}
+                            {% elif order.farmer %}
+                                {{ order.farmer }}
+                            {% endif %}
+                        </td>
+                        <td>{{ order.created_date_at | to_persian_date }}</td>
+                        <td class="price">{{ order.total_price | to_persian_numbers }}</td>
+                        <td class="{% if order.remaining_payment > 0 %}remaining-positive{% else %}remaining-zero{% endif %}">
+                            {{ order.remaining_payment | to_persian_numbers }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="summary">
+        <h3>خلاصه گزارش:</h3>
+        <div class="summary-item">
+            <span class="summary-label">تعداد کل حواله‌ها:</span>
+            <span class="summary-value">{{ orders|length | to_persian_numbers }} حواله</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">مجموع مبلغ کل:</span>
+            <span class="summary-value">{{ total_amount | to_persian_numbers }} ریال</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">مجموع مانده حساب:</span>
+            <span class="summary-value">{{ total_remaining | to_persian_numbers }} ریال</span>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>تاریخ تولید گزارش: {{ current_date }}</p>
+        <p>تعاونی باغ داران استهبان - سیستم مدیریت حواله‌ها</p>
+    </div>
+</body>
+</html>

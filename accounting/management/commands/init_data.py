@@ -2,7 +2,7 @@ import jdatetime
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 
-from accounting.models import Price
+from accounting.models import Price, Setting
 from order.models import OrderDescription, OrderNumber
 
 
@@ -13,77 +13,77 @@ class Command(BaseCommand):
         self.stdout.write('Starting data initialization...')
 
         default_user_groups = {
-                'manager': [
-                    'add_farmer',
-                    'change_farmer',
-                    'delete_farmer',
-                    'view_farmer',
+            'manager': [
+                'add_farmer',
+                'change_farmer',
+                'delete_farmer',
+                'view_farmer',
 
-                    'add_farmlandtype',
-                    'change_farmlandtype',
-                    'delete_farmlandtype',
-                    'view_farmlandtype',
+                'add_farmlandtype',
+                'change_farmlandtype',
+                'delete_farmlandtype',
+                'view_farmlandtype',
 
-                    'add_zone',
-                    'change_zone',
-                    'delete_zone',
-                    'view_zone',
+                'add_zone',
+                'change_zone',
+                'delete_zone',
+                'view_zone',
 
-                    'add_farmland',
-                    'change_farmland',
-                    'delete_farmland',
-                    'view_farmland',
+                'add_farmland',
+                'change_farmland',
+                'delete_farmland',
+                'view_farmland',
 
-                    'add_waterorder',
-                    'change_waterorder',
-                    'delete_waterorder',
-                    'view_waterorder',
+                'add_waterorder',
+                'change_waterorder',
+                'delete_waterorder',
+                'view_waterorder',
 
-                    'change_orderdescription',
-                    'view_orderdescription',
+                'change_orderdescription',
+                'view_orderdescription',
 
-                    'add_watersource',
-                    'change_watersource',
-                    'delete_watersource',
-                    'view_watersource',
+                'add_watersource',
+                'change_watersource',
+                'delete_watersource',
+                'view_watersource',
 
-                    'add_driver',
-                    'change_driver',
-                    'delete_driver',
-                    'view_driver',
+                'add_driver',
+                'change_driver',
+                'delete_driver',
+                'view_driver',
 
-                    'change_price',
-                    'view_price',
+                'change_price',
+                'view_price',
 
-                    'add_payment',
-                    'change_payment',
-                    'delete_payment',
-                    'view_payment',
-                ],
-                'staff': [
-                    'add_farmer',
-                    'change_farmer',
-                    'delete_farmer',
-                    'view_farmer',
+                'add_payment',
+                'change_payment',
+                'delete_payment',
+                'view_payment',
+            ],
+            'staff': [
+                'add_farmer',
+                'change_farmer',
+                'delete_farmer',
+                'view_farmer',
 
-                    'add_farmland',
-                    'change_farmland',
-                    'delete_farmland',
-                    'view_farmland',
+                'add_farmland',
+                'change_farmland',
+                'delete_farmland',
+                'view_farmland',
 
-                    'add_waterorder',
-                    'change_waterorder',
-                    'view_waterorder',
+                'add_waterorder',
+                'change_waterorder',
+                'view_waterorder',
 
-                    'add_driver',
-                    'change_driver',
-                    'delete_driver',
-                    'view_driver',
-                    
-                    'add_payment',
-                    'view_payment',
-                ]
-            }
+                'add_driver',
+                'change_driver',
+                'delete_driver',
+                'view_driver',
+
+                'add_payment',
+                'view_payment',
+            ]
+        }
 
         default_prices = [
             {'name': 'water_price_liter', 'value': 1000, 'fa_name': 'قیمت هر لیتر آب'},
@@ -123,5 +123,48 @@ class Command(BaseCommand):
                 number=1,
                 reset_date=jdatetime.date(1403, 7, 1),
             )
+
+        setting_values = (
+            [
+                'name_of_institute',
+                'نام سازمان',
+                'فرضی',
+            ],
+            [
+                'address',
+                'آدرس',
+                'فرضی',
+            ],
+            [
+                'phone',
+                'تلفن',
+                '۱۲۳۴۵۶۷۸۹',
+            ],
+            [
+                'national_id',
+                'شناسه ملی',
+                '۱۲۳۴۵۶۷۸۹',
+            ],
+            [
+                'economic_code',
+                'کد اقتصادی',
+                '۱۲۳۴۵۶۷۸۹',
+            ],
+            [
+                'postal_code',
+                'کد پستی',
+                '۱۲۳۴۵۶۷۸۹',
+            ]
+        )
+        settings = []
+        for i in setting_values:
+            settings.append(
+                Setting(
+                    name=i[0],
+                    fa_name=i[1],
+                    value=i[2],
+                )
+            )
+        Setting.objects.bulk_create()
 
         self.stdout.write(self.style.SUCCESS('Price initialization completed successfully'))

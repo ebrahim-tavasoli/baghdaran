@@ -13,13 +13,24 @@ class PrintOrderView(View):
             order = get_object_or_404(models.WaterOrder, id=order_id)
             description = get_object_or_404(models.OrderDescription, name='water_order_liter').template if order.water_source_type == 'liter' else get_object_or_404(models.OrderDescription, name='water_order_pipe').template
             template = 'order/water_order_liter.html' if order.water_source_type == 'liter' else 'order/water_order_pipe.html'
-            filename = f"water_order_{order.id}.pdf"
+            filename = f"water_order_{order.id}"
             context = {
                 'created_at': order.created_date_at,
+                'number': order.number,
                 'order': order,
                 'description': description,
             }
+        elif order_type == 'goods':
+            order = get_object_or_404(models.GoodsOrder, id=order_id)
+            template = 'order/goods_order.html'
+            filename = f"goods_order_{order.id}"
+            context = {
+                'created_at': order.created_date_at,
+                'number': order.number,
+                'order': order,
+            }
         else:
             raise Http404("Invalid order type")
+            
         html_content = render_to_string(template, context)
         return return_pdf(html_content, filename)
