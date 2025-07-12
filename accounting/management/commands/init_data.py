@@ -165,6 +165,6 @@ class Command(BaseCommand):
                     value=i[2],
                 )
             )
-        Setting.objects.bulk_create()
+        Setting.objects.bulk_create(settings, ignore_conflicts=True)
 
         self.stdout.write(self.style.SUCCESS('Price initialization completed successfully'))
