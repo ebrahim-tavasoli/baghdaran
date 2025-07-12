@@ -10,6 +10,7 @@ from django.utils.html import format_html
 from order import models
 from farmland.models import Farmland
 from accounting import models as accounting_models
+from accounting.admin import PaymentInline
 from .admin_report import OrderReportForm
 
 
@@ -55,12 +56,7 @@ class WaterOrderAdmin(admin.ModelAdmin):
         'created_date_at', 'created_time_at', 'updated_at', 'water_price_base', 'pipe_price_base', 'pump_price_base',
         'total_price', 'remaining_payment', 'number')
 
-    inlines = [
-        type('PaymentInline', (GenericTabularInline,), {
-            'model': accounting_models.Payment,
-            'extra': 1,
-        }),
-    ]
+    inlines = [PaymentInline]
 
     class Media:
         js = ['admin/js/jquery.init.js', 'admin/js/autocomplete.js']
@@ -108,10 +104,7 @@ class GoodsOrderAdmin(admin.ModelAdmin):
 
     inlines = [
         GoodsOrderItemsInline,
-        type('PaymentInline', (GenericTabularInline,), {
-            'model': accounting_models.Payment,
-            'extra': 1,
-        }),
+        PaymentInline,
    ]
 
     class Media:

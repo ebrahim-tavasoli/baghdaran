@@ -35,7 +35,6 @@ class Price(models.Model):
 
 
 class Payment(models.Model):
-    order = models.ForeignKey('order.WaterOrder', on_delete=models.CASCADE, verbose_name="حواله", related_name="order_payments")
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
@@ -47,5 +46,18 @@ class Payment(models.Model):
         verbose_name = "پرداخت"
         verbose_name_plural = "پرداخت ها"
     
+    def save(self, *args, **kwargs):
+        # The content_object handles the relationship automatically
+        super().save(*args, **kwargs)
+    
     def __str__(self):
-        return f"{self.order.farmland.name} - {self.amount}"
+        if self.content_object:
+            # Handle both WaterOrder and GoodsOrder
+            if hasattr(self.content_object, 'farmland'):  # WaterOrder
+                return f"{self.content_object.farmland.name} - {self.amount}"
+            elif hasattr(self.content_object, 'farmer'):  # GoodsOrder
+                return f"{self.content_object.farmer.name} - {self.amount}"
+            else:
+                return f"{self.content_object} - {self.amount}"
+        else:
+            return f"Payment - {self.amount}"

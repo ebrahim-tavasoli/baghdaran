@@ -94,8 +94,7 @@ class WaterOrder(models.Model):
     @property
     def total_payment(self):
         try:
-            return accounting_models.Payment.objects.filter(order=self).aggregate(models.Sum('amount'))[
-                'amount__sum'] or 0
+            return self.payments.aggregate(models.Sum('amount'))['amount__sum'] or 0
         except:
             return 0
 
@@ -193,9 +192,7 @@ class GoodsOrder(models.Model):
     @property
     def total_payment(self):
         try:
-            return accounting_models.Payment.objects.filter(
-                order=self
-            ).aggregate(models.Sum('amount'))['amount__sum'] or 0
+            return self.payments.aggregate(models.Sum('amount'))['amount__sum'] or 0
         except:
             return 0
 
