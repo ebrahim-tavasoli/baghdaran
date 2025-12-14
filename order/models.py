@@ -37,7 +37,7 @@ class OrderDescription(models.Model):
 class WaterOrder(models.Model):
     number = models.BigIntegerField("شماره", default=0)
     farmland = models.ForeignKey("farmland.Farmland", on_delete=models.CASCADE, verbose_name="مزرعه")
-    driver = models.ForeignKey("driver.Driver", on_delete=models.CASCADE, verbose_name="راننده")
+    driver = models.ForeignKey("driver.Driver", on_delete=models.CASCADE, verbose_name="راننده", blank=True, null=True)
     water_source = models.ForeignKey("water_source.WaterSource", on_delete=models.CASCADE, verbose_name="منبع آب")
     water_source_type = models.CharField("واحد مقدار آب", max_length=16, choices=[("liter", "لیتر"), (
         "time", "ساعت")])  # liter = tanker must transport, time = water transfer by pipes

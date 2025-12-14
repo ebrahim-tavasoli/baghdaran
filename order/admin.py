@@ -59,7 +59,7 @@ class WaterOrderAdmin(admin.ModelAdmin):
     inlines = [PaymentInline]
 
     class Media:
-        js = ['admin/js/jquery.init.js', 'admin/js/autocomplete.js']
+        js = ['admin/js/jquery.init.js', 'admin/js/autocomplete.js', 'order/js/water_order_admin.js']
 
     def changelist_view(self, request, extra_context=None):
         if not extra_context:
